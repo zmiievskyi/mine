@@ -157,6 +157,8 @@ npm run start      # Serve production build
 
 ## Docker Deployment
 
+**Production host**: `revops-vm1` (`ed-c16-61-125-69`), accessible via Cloudflare tunnel.
+
 ```bash
 cd next-frontend
 docker compose up -d --build   # Build and run on port 8000
