@@ -17,10 +17,10 @@ export interface GpuEfficiency {
  * Note: B200 uses estimated pricing for efficiency calculation
  */
 export const gpuEfficiencyData: GpuEfficiency[] = [
-  { name: 'A100', weight: 256.498, pricePerHour: 0.99, efficiency: 259.09 },
-  { name: 'H100', weight: 606.046, pricePerHour: 1.80, efficiency: 336.69 },
-  { name: 'H200', weight: 619.000, pricePerHour: 2.40, efficiency: 257.92 },
-  { name: 'B200', weight: 955.921, pricePerHour: 3.02, efficiency: 316.53, isEstimated: true },
+  { name: 'A100', weight: 100.593, pricePerHour: 0.99, efficiency: 101.61 },
+  { name: 'H100', weight: 305.655, pricePerHour: 1.80, efficiency: 169.81 },
+  { name: 'H200', weight: 240.674, pricePerHour: 2.40, efficiency: 100.28 },
+  { name: 'B200', weight: 307.853, pricePerHour: 3.02, efficiency: 101.94, isEstimated: true },
 ];
 
 // Sort by efficiency (highest first) and find best value

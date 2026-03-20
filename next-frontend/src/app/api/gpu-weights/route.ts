@@ -147,38 +147,35 @@ export async function GET() {
       }
     }
 
-    // Step 4: Calculate weight per GPU for each variant, then pick best per GPU type
-    // We pick the variant with the highest weight/GPU as it represents the best available option
-    const bestByGpuType = new Map<string, { weight: number; count: number }>();
+    // Step 4: Aggregate all variants per GPU type (e.g. all A100 variants combined)
+    const aggregatedByGpuType = new Map<string, { totalWeight: number; totalCount: number }>();
 
     for (const [gpuType, data] of nodesHwList) {
       const totalWeight = totalHwWeight.get(gpuType) ?? 0;
       if (data.count === 0) continue;
 
-      const weightPerGpu = totalWeight / data.count;
-
-      // Extract simplified GPU type for pricing lookup
       const simplifiedType = extractGpuType(gpuType);
       if (!simplifiedType) continue;
 
-      const existing = bestByGpuType.get(simplifiedType);
-      if (!existing || weightPerGpu > existing.weight) {
-        bestByGpuType.set(simplifiedType, { weight: weightPerGpu, count: data.count });
-      }
+      const existing = aggregatedByGpuType.get(simplifiedType) ?? { totalWeight: 0, totalCount: 0 };
+      existing.totalWeight += totalWeight;
+      existing.totalCount += data.count;
+      aggregatedByGpuType.set(simplifiedType, existing);
     }
 
-    // Build efficiency data from best variants
+    // Build efficiency data from aggregated variants
     const finalData: GpuEfficiency[] = [];
 
-    for (const [gpuType, data] of bestByGpuType) {
+    for (const [gpuType, data] of aggregatedByGpuType) {
       const pricePerHour = GPU_PRICING[gpuType];
-      if (!pricePerHour) continue;
+      if (!pricePerHour || data.totalCount === 0) continue;
 
-      const efficiency = data.weight / pricePerHour;
+      const weightPerGpu = data.totalWeight / data.totalCount;
+      const efficiency = weightPerGpu / pricePerHour;
 
       finalData.push({
         name: gpuType,
-        weight: data.weight,
+        weight: weightPerGpu,
         pricePerHour,
         efficiency,
         isEstimated: gpuType === 'B200',
