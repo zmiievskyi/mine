@@ -60,7 +60,7 @@ npm run start      # Serve production build
 
 ## HubSpot Integration
 
-Form configuration is hardcoded in `src/components/ui/HubspotModal.tsx`:
+Form configuration is hardcoded in `src/app/[locale]/request-gpu/RequestGpuClient.tsx`:
 
 | Portal ID | Form ID | Region |
 |-----------|---------|--------|
@@ -130,7 +130,7 @@ GitHub Actions runs automatically on every push and pull request.
 
 | Job | Runs on | Steps |
 |-----|---------|-------|
-| `ci` | Push to main, all PRs | Install → Lint → Test → Build |
+| `ci` | Push to main, all PRs | Install → Lint → Test (with coverage) → Build |
 | `deploy` | Push to main only (after CI passes) | SSH into VM → git pull → docker compose up |
 
 ### Workflow
@@ -150,7 +150,30 @@ The deploy job SSHes into `revops-vm1`, pulls the latest code, rebuilds the Dock
 | `VM_USER` | SSH username |
 | `VM_SSH_KEY` | Private SSH key |
 
-Configure these in **GitHub → Settings → Secrets and variables → Actions**.
+These secrets live in the **`mine`** GitHub environment. Configure them in **GitHub → Settings → Environments → mine → Environment secrets**.
+
+## Testing
+
+```bash
+cd next-frontend
+npm test                      # Run all tests
+npm run test:coverage         # Run with coverage report
+```
+
+13 test suites, 141 tests covering API routes, components, and utilities.
+
+| Area | Test File |
+|------|-----------|
+| GPU weights API | `src/app/api/gpu-weights/__tests__/route.test.ts` |
+| Network status API | `src/app/api/network-status/__tests__/route.test.ts` |
+| HubSpot form page | `src/app/[locale]/request-gpu/__tests__/RequestGpuClient.test.tsx` |
+| Fetch utility | `src/lib/gonka/__tests__/fetch.test.ts` |
+| Header component | `src/components/landing/__tests__/Header.test.tsx` |
+| Sitemap | `src/app/__tests__/sitemap.test.ts` |
+| Robots.txt | `src/app/__tests__/robots.test.ts` |
+| Network status component | `src/components/ui/__tests__/NetworkStatus.test.tsx` |
+
+Coverage thresholds are enforced at 45% statements/branches/lines and 30% functions. The CI workflow posts a coverage summary comment on every PR.
 
 ## Development
 

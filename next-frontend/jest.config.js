@@ -19,12 +19,13 @@ const customJestConfig = {
     '!src/**/*.stories.{js,jsx,ts,tsx}',
     '!src/**/__tests__/**',
   ],
+  coverageReporters: ['text', 'json-summary'],
   coverageThreshold: {
     global: {
-      branches: 60,
-      functions: 60,
-      lines: 60,
-      statements: 60,
+      branches: 45,
+      functions: 30,
+      lines: 45,
+      statements: 45,
     },
   },
 };

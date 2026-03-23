@@ -9,6 +9,8 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     defaults:
       run:
@@ -29,8 +31,15 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
-        run: npm test
+      - name: Test with coverage
+        run: npm run test:coverage -- --ci
+
+      - name: Coverage comment
+        uses: MishaKav/jest-coverage-comment@main
+        if: github.event_name == 'pull_request'
+        with:
+          coverage-summary-path: next-frontend/coverage/coverage-summary.json
+          title: Test Coverage
 
       - name: Build
         run: npm run build
@@ -38,6 +47,7 @@ jobs:
   deploy:
     needs: ci
     runs-on: ubuntu-latest
+    environment: mine
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -48,7 +58,7 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            cd ~/Mine
+            cd ~/mine
             git pull
             cd next-frontend
             sudo docker compose up -d --build

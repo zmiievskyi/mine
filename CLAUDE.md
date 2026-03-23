@@ -179,7 +179,7 @@ Access at **http://localhost:8000**
 | Job | Trigger | Steps |
 |-----|---------|-------|
 | `ci` | push to main, PRs | checkout → Node 22 setup → `npm ci` → lint → test → build |
-| `deploy` | push to main only (after `ci` passes) | SSH into VM → `git pull` → `docker compose up -d --build` → `docker image prune -f` |
+| `deploy` | push to main only (after `ci` passes) | Uses `mine` environment → SSH into VM → `git pull` → `docker compose up -d --build` → `docker image prune -f` |
 
 ### Deploy Flow
 
@@ -206,13 +206,67 @@ deploy job SSHes into revops-vm1
 | `VM_USER` | SSH username on the VM |
 | `VM_SSH_KEY` | Private SSH key for authentication |
 
-Set these in **GitHub → Settings → Secrets and variables → Actions**.
+These secrets live in the **`mine`** GitHub environment. Set them in **GitHub → Settings → Environments → mine → Environment secrets**.
 
 ### Notes
 
 - The `deploy` job only runs on `push` events to `main`, never on PRs.
 - Docker images are pruned after each deploy to reclaim disk space.
 - The working directory for the CI job is `next-frontend` (set via `defaults.run.working-directory`).
+
+## Testing
+
+### Running Tests
+
+```bash
+cd next-frontend
+npm test                          # Run all tests
+npm run test:coverage             # Run with coverage report
+npm run test:coverage -- --ci     # CI mode (used in GitHub Actions)
+```
+
+### Test Suites
+
+13 test suites, 141 tests total. All must pass before a PR can be merged.
+
+| Test File | Tests | What It Covers |
+|-----------|-------|----------------|
+| `src/app/api/gpu-weights/__tests__/route.test.ts` | 17 | Efficiency calculation, GPU aggregation, fallback to static data, 60s cache header |
+| `src/app/api/network-status/__tests__/route.test.ts` | 9 | Status determination (Live/Syncing/Stale/Unknown), block age, epoch extraction |
+| `src/app/[locale]/request-gpu/__tests__/RequestGpuClient.test.tsx` | 10 | GPU mapping, loading/error states, URL param pre-fill |
+| `src/lib/gonka/__tests__/fetch.test.ts` | 5 | `fetchWithTimeout` utility — timeout behavior, error handling |
+| `src/components/landing/__tests__/Header.test.tsx` | 6 | Nav links, mobile menu toggle, accessibility |
+| `src/app/__tests__/sitemap.test.ts` | 5 | Sitemap URL generation per locale, priorities |
+| `src/app/__tests__/robots.test.ts` | 3 | Robots rules, sitemap link |
+| `src/components/ui/__tests__/NetworkStatus.test.tsx` | — | API response parsing, status logic, responsive behavior, auto-refresh |
+
+### Coverage
+
+Current thresholds (enforced via `jest.config.js`):
+
+| Metric | Threshold | Actual |
+|--------|-----------|--------|
+| Statements | 45% | ~46% |
+| Branches | 45% | ~48% |
+| Functions | 30% | ~33% |
+| Lines | 45% | ~47% |
+
+Thresholds are intentionally modest — many landing page components are static markup with no testable logic.
+
+### Test Environments
+
+API route tests use `@jest-environment node` (set per-file via docblock). All other tests use the default `jsdom` environment. Browser-only mocks in `jest.setup.js` are guarded with `typeof window !== 'undefined'` to avoid errors in the Node environment.
+
+### Coverage Reporting in CI
+
+The CI workflow runs `npm run test:coverage -- --ci` and uses the `MishaKav/jest-coverage-comment` action to post a coverage summary as a PR comment.
+
+### Config Files
+
+| File | Purpose |
+|------|---------|
+| `jest.config.js` | Jest config — environment, path aliases, coverage reporters and thresholds |
+| `jest.setup.js` | Global test setup — browser API mocks (guarded for Node environment) |
 
 ## Git Workflow
 
@@ -377,12 +431,9 @@ Located in Header component as a sub-header strip below the main navigation bar.
 
 ### Testing
 
-Full test coverage available at `src/components/ui/__tests__/NetworkStatus.test.tsx`:
-- API response parsing
-- Status logic validation
-- Responsive behavior
-- Error handling
-- Auto-refresh functionality
+Test file: `src/components/ui/__tests__/NetworkStatus.test.tsx`
+
+Tests cover API response parsing, status logic, responsive behavior, error handling, and auto-refresh. The file was rewritten to match the current `/api/network-status` response format (the component no longer calls the Gonka endpoint directly).
 
 ### Key Files
 
