@@ -21,6 +21,13 @@ Format: `[YYYY-MM-DD] type: description`
 
 ### Changed
 
+- `fix: update pricing subtitle to clarify setup/monitoring fees are separate`
+  - Pricing subtitle now states plans do not include setup or monitoring fees
+  - Managed service pricing available on request when purchasing
+  - Updated EN, RU, ZH translations
+- `fix: update FAQ answer to mention Managed Service in provisioning`
+  - Added "With Managed Service, " to the start of the provisioning FAQ answer
+
 - `chore: hide efficiency section pending team review` (commit `b8a1156`)
   - EfficiencySection temporarily removed from landing page
 

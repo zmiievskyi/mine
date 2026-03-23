@@ -182,7 +182,7 @@
   "pricing": {
     "badge": "Simple Pricing",
     "title": "Choose your 8x GPU server package",
-    "subtitle": "All plans are month-to-month with no setup fees. Optional managed services for setup and monitoring.",
+    "subtitle": "All plans are on a month-by-month basis and do not include setup or monitoring fees. Pricing for this managed service is available on request when purchasing.",
     "perMonth": "/month",
     "perHour": "/GPU/hour",
     "perGpuHour": "per GPU/hour",
@@ -217,7 +217,7 @@
     "items": [
       {
         "question": "How quickly can I start participating?",
-        "answer": "Provisioning typically completes within days after KYC verification and contract signing. We handle server assignment, software installation, and wallet connection end-to-end."
+        "answer": "Provisioning typically completes within days after KYC verification and contract signing. With Managed Service, we handle server assignment, software installation, and wallet connection end-to-end."
       },
       {
         "question": "Can I confirm infrastructure fit before committing budget?",

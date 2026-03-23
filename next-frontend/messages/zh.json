@@ -182,7 +182,7 @@
   "pricing": {
     "badge": "简单定价",
     "title": "选择您的 8x GPU 服务器套餐",
-    "subtitle": "所有计划按月付费，无设置费用。可选托管服务用于安装和监控。",
+    "subtitle": "所有计划按月付费，不包含设置或监控费用。托管服务的定价在购买时可按需提供。",
     "perMonth": "/月",
     "perHour": "/GPU/小时",
     "perGpuHour": "每 GPU/小时",
