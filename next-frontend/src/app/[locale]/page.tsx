@@ -6,7 +6,8 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { ForWho } from '@/components/landing/ForWho';
 import { PricingSection } from '@/components/landing/PricingSection';
-import { EfficiencySection } from '@/components/landing/EfficiencySection';
+// Hidden: team reviewing whether efficiency section is needed
+// import { EfficiencySection } from '@/components/landing/EfficiencySection';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { ManagedServices } from '@/components/landing/ManagedServices';
 import { FaqSection } from '@/components/landing/FaqSection';
@@ -43,9 +44,11 @@ export default async function LandingPage({ params }: PageProps) {
         <section>
           <PricingSection />
         </section>
+        {/* Hidden: team reviewing whether efficiency section is needed
         <section>
           <EfficiencySection />
         </section>
+        */}
         <section>
           <HowItWorks />
         </section>
