@@ -208,8 +208,6 @@ npm run start      # Serve production build
 
 ## Docker Deployment
 
-**Production host**: `revops-vm1` (`ed-c16-61-125-69`), accessible via Cloudflare tunnel.
-
 ```bash
 cd next-frontend
 docker compose up -d --build   # Build and run on port 8000
@@ -219,7 +217,7 @@ docker compose down            # Stop
 
 Access at **http://localhost:8000**
 
-**Gcore host**: `ed-c16-188-146-160` (`185.188.146.160`). `minegnk.com` and `www` have A records to this IP (DNS at Porkbun). Caddy (`next-frontend/Caddyfile`) serves 80/443 with automatic Let's Encrypt TLS and redirects `www` → `minegnk.com`; the app has no public port:
+**Production host**: Gcore VM `ed-c16-188-146-160` (`185.188.146.160`). `minegnk.com` and `www` have A records to this IP (DNS at Porkbun). Caddy (`next-frontend/Caddyfile`) serves 80/443 with automatic Let's Encrypt TLS and redirects `www` → `minegnk.com`; the app has no public port:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
@@ -236,8 +234,7 @@ docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
 | Job | Trigger | Steps |
 |-----|---------|-------|
 | `ci` | push to main, PRs | checkout → Node 22 setup → `npm ci` → lint → test → build |
-| `deploy` | push to main only (after `ci` passes) | Uses `mine` environment → SSH into VM → `git pull` → `docker compose up -d --build` → `docker image prune -f` |
-| `deploy-gcore` | push to main only (after `ci` passes) | Uses `mine-gcore` environment → same steps on the Gcore VM with `-f docker-compose.gcore.yml` (app + Caddy) → also `docker builder prune -f` (small disk) |
+| `deploy` | push to main only (after `ci` passes) | Uses `mine` environment → SSH into VM → `git pull` → `docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build` (app + Caddy) → `docker image prune -f` → `docker builder prune -f` (small disk) |
 
 ### Deploy Flow
 
@@ -248,31 +245,30 @@ push to main
 ci job passes (lint + test + build)
      │
      ▼
-deploy job SSHes into revops-vm1
+deploy job SSHes into the Gcore VM
      │
-     ├── cd ~/Mine && git pull
+     ├── cd ~/mine && git pull
      ├── cd next-frontend
-     ├── sudo docker compose up -d --build
-     └── sudo docker image prune -f
+     ├── sudo docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
+     ├── sudo docker image prune -f
+     └── sudo docker builder prune -f
 ```
 
 ### Required GitHub Secrets
 
 | Secret | Description |
 |--------|-------------|
-| `VM_HOST` | Production VM hostname or IP (`ed-c16-61-125-69`) |
+| `VM_HOST` | Production VM IP (`185.188.146.160`) |
 | `VM_USER` | SSH username on the VM |
 | `VM_SSH_KEY` | Private SSH key for authentication |
 
 These secrets live in the **`mine`** GitHub environment. Set them in **GitHub → Settings → Environments → mine → Environment secrets**.
 
-The `deploy-gcore` job reads the same three secret names from the **`mine-gcore`** environment (`VM_HOST=185.188.146.160`, `VM_USER=ubuntu`).
-
 ### Notes
 
 - The `deploy` job only runs on `push` events to `main`, never on PRs.
 - On PR checks the `deploy` job shows as **Skipped** — this is expected (the `if:` condition filters it out until the PR is merged).
-- Docker images are pruned after each deploy to reclaim disk space.
+- Docker images and build cache are pruned after each deploy: the VM disk is small (8.6 GB).
 - The working directory for the CI job is `next-frontend` (set via `defaults.run.working-directory`).
 
 ## Testing
