@@ -219,6 +219,12 @@ docker compose down            # Stop
 
 Access at **http://localhost:8000**
 
+**Gcore host**: `ed-c16-188-146-160` (`185.188.146.160`). `minegnk.com` and `www` have A records to this IP (DNS at Porkbun). Caddy (`next-frontend/Caddyfile`) serves 80/443 with automatic Let's Encrypt TLS and redirects `www` → `minegnk.com`; the app has no public port:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
+```
+
 ## CI/CD
 
 ### Workflow File
@@ -231,6 +237,7 @@ Access at **http://localhost:8000**
 |-----|---------|-------|
 | `ci` | push to main, PRs | checkout → Node 22 setup → `npm ci` → lint → test → build |
 | `deploy` | push to main only (after `ci` passes) | Uses `mine` environment → SSH into VM → `git pull` → `docker compose up -d --build` → `docker image prune -f` |
+| `deploy-gcore` | push to main only (after `ci` passes) | Uses `mine-gcore` environment → same steps on the Gcore VM with `-f docker-compose.gcore.yml` (app + Caddy) → also `docker builder prune -f` (small disk) |
 
 ### Deploy Flow
 
@@ -258,6 +265,8 @@ deploy job SSHes into revops-vm1
 | `VM_SSH_KEY` | Private SSH key for authentication |
 
 These secrets live in the **`mine`** GitHub environment. Set them in **GitHub → Settings → Environments → mine → Environment secrets**.
+
+The `deploy-gcore` job reads the same three secret names from the **`mine-gcore`** environment (`VM_HOST=185.188.146.160`, `VM_USER=ubuntu`).
 
 ### Notes
 

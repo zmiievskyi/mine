@@ -1,0 +1,9 @@
+# Caddy gets and renews the Let's Encrypt certificates by itself.
+minegnk.com {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+www.minegnk.com {
+	redir https://minegnk.com{uri} permanent
+}
