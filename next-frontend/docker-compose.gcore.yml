@@ -1,0 +1,7 @@
+# Gcore VM (185.188.146.160) behind Gcore CDN. Use together with the base file:
+#   docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
+# Port 80 only: the cloud security group blocks 8000, and the CDN pulls from origin over HTTP.
+services:
+  web:
+    ports: !override
+      - "80:3000"
