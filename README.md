@@ -132,7 +132,7 @@ GitHub Actions runs automatically on every push and pull request.
 |-----|---------|-------|
 | `ci` | Push to main, all PRs | Install → Lint → Test (with coverage) → Build |
 | `deploy` | Push to main only (after CI passes) | SSH into VM → git pull → docker compose up |
-| `deploy-gcore` | Push to main only (after CI passes) | Same steps on the Gcore VM (behind Gcore CDN) with `docker-compose.gcore.yml` (port 80) |
+| `deploy-gcore` | Push to main only (after CI passes) | Same steps on the Gcore VM (`minegnk.com`) with `docker-compose.gcore.yml` (Caddy on 80/443, auto TLS) |
 
 ### Workflow
 

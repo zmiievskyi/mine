@@ -1,7 +1,25 @@
-# Gcore VM (185.188.146.160) behind Gcore CDN. Use together with the base file:
+# Gcore VM (185.188.146.160), minegnk.com points here directly. Use with the base file:
 #   docker compose -f docker-compose.yml -f docker-compose.gcore.yml up -d --build
-# Port 80 only: the cloud security group blocks 8000, and the CDN pulls from origin over HTTP.
+# Only Caddy is public (80/443, TLS); the app is reachable only inside the compose network.
 services:
   web:
-    ports: !override
-      - "80:3000"
+    ports: !reset []
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates live here; losing them means re-issuing and Let's Encrypt rate limits.
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
