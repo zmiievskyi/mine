@@ -58,26 +58,6 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            cd ~/mine
-            git pull
-            cd next-frontend
-            sudo docker compose up -d --build
-            sudo docker image prune -f
-
-  deploy-gcore:
-    needs: ci
-    runs-on: ubuntu-latest
-    environment: mine-gcore
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Deploy to Gcore VM
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          script: |
             set -e
             cd ~/mine
             git pull

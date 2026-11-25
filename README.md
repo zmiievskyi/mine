@@ -131,8 +131,7 @@ GitHub Actions runs automatically on every push and pull request.
 | Job | Runs on | Steps |
 |-----|---------|-------|
 | `ci` | Push to main, all PRs | Install → Lint → Test (with coverage) → Build |
-| `deploy` | Push to main only (after CI passes) | SSH into VM → git pull → docker compose up |
-| `deploy-gcore` | Push to main only (after CI passes) | Same steps on the Gcore VM (`minegnk.com`) with `docker-compose.gcore.yml` (Caddy on 80/443, auto TLS) |
+| `deploy` | Push to main only (after CI passes) | SSH into VM → git pull → docker compose up with `docker-compose.gcore.yml` (Caddy on 80/443, auto TLS) |
 
 ### Workflow
 
@@ -141,7 +140,7 @@ PR opened → ci job runs (lint + test + build)
 push to main → ci job passes → deploy job runs
 ```
 
-The deploy job SSHes into `revops-vm1`, pulls the latest code, rebuilds the Docker image, and prunes old images.
+The deploy job SSHes into the production Gcore VM (`minegnk.com`), pulls the latest code, rebuilds the Docker image, and prunes old images and build cache.
 
 ### Required GitHub Secrets
 
@@ -152,8 +151,6 @@ The deploy job SSHes into `revops-vm1`, pulls the latest code, rebuilds the Dock
 | `VM_SSH_KEY` | Private SSH key |
 
 These secrets live in the **`mine`** GitHub environment. Configure them in **GitHub → Settings → Environments → mine → Environment secrets**.
-
-The `deploy-gcore` job uses the same secret names in the **`mine-gcore`** environment.
 
 ## Testing
 
